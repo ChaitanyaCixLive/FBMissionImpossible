@@ -1,0 +1,63 @@
+from selenium import webdriver
+import os, errno
+import time
+import datetime
+import selenium.webdriver.support.ui as ui
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions    import NoSuchWindowException
+import shutil
+import logging
+import base64
+from selenium.webdriver.chrome.options import Options
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256, HMAC
+import bcrypt
+
+
+salt = bcrypt.gensalt()
+print salt
+salt = '$2a$12$NQLS2R3QdTRYjVbInDbawe'
+hash = bcrypt.hashpw('7xkVpjUvEHsjEcS0Irrxoa2NkeyKfuq', salt)
+print hash
+
+BLOCK_SIZE = 32
+PADDING = '{'
+
+# one-liner to sufficiently pad the text to be encrypted
+pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * PADDING
+
+EncodeAES = lambda c, s: base64.b64encode(c.encrypt(pad(s)))
+DecodeAES = lambda c, e: c.decrypt(base64.b64decode(e)).rstrip(PADDING)
+
+secret = os.urandom(BLOCK_SIZE)
+#print secret.decode('utf-8')
+#print(' '.join(format(ord(x), 'x') for x in secret))
+
+# create a cipher object using the random secret
+cipher = AES.new(hash[0:32])
+
+
+# encode a string
+encoded = EncodeAES(cipher, '')
+print 'Encrypted string:', encoded
+
+# decode the encoded string
+decoded = DecodeAES(cipher, encoded)
+print 'Decrypted string:', decoded
+
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--disable-application-cache')
+prefs = {"download.default_directory" : "./data"}
+chrome_options.add_experimental_option("prefs",prefs)
+myDriver = webdriver.Chrome('/usr/bin/chromedriver', service_args=['--verbose'], chrome_options=chrome_options, service_log_path="./log/chromedriver.log")
+
+
+myDriver.quit()
+
+#aSrcFileName = "~/Downloads/moviedata.txt"
+
+aDestFileName = "./data/moviedata_" + datetime.datetime.now().strftime("%d%m%Y_%H%M%S") + ".txt"
+
+shutil.move(aSrcFileName, aDestFileName)

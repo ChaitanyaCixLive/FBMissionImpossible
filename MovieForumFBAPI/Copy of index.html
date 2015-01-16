@@ -1,0 +1,212 @@
+<html>
+<body>
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    
+	FB.init({
+      		appId      : '412284952257551', // App ID
+      		status     : true, // check login status
+      		cookie     : true, // enable cookies to allow the server to access the session
+      		xfbml      : true  // parse XFBML
+    	});
+    
+    
+	FB.Event.subscribe('auth.authResponseChange', function(response) 
+	{
+ 	 	if (response.status === 'connected') 
+  		{	
+  			document.getElementById("message").innerHTML +=  "<br>Connected to Facebook";
+  			//SUCCESS
+  		
+  		}	 
+		else if (response.status === 'not_authorized') 
+    		{
+    			document.getElementById("message").innerHTML +=  "<br>Failed to Connect";
+
+			//FAILED
+    		} else 
+    		{
+    			document.getElementById("message").innerHTML +=  "<br>Logged Out";
+
+    			//UNKNOWN ERROR
+    		}
+	});	
+	
+    };
+    
+   function Login()
+   {
+	
+		FB.login(function(response) {
+		   if (response.authResponse) 
+		   {
+		    	getGroupPosts();
+  			} else 
+  			{
+  	    	 console.log('User cancelled login or did not fully authorize.');
+   			}
+		 },{scope: 'email,user_photos,user_groups'});
+	
+	
+  }
+
+  function getUserInfo() {
+	    FB.api('/me', function(response) {
+
+	  var str="<b>Name</b> : "+response.name+"<br>";
+	  	  str +="<b>Link: </b>"+response.link+"<br>";
+	  	  str +="<b>Username:</b> "+response.username+"<br>";
+	  	  str +="<b>id: </b>"+response.id+"<br>";
+	  	  str +="<b>Email:</b> "+response.email+"<br>";
+	  	  str +="<input type='button' value='Get Photo' onclick='getPhoto();'/>";
+	  	  str +="<input type='button' value='Logout' onclick='Logout();'/>";
+	  	  document.getElementById("status").innerHTML=str;
+	  	  	    
+    		});
+    }
+    
+    function getGroupInfo() {
+        
+        FB.api(
+            "/me/groups",
+            function (response) {
+              if (response && !response.error) {
+                  
+                  var str= "Groups :";
+                  //str += getGroupInfoNext(response);
+                  
+	  	          str +="<input type='button' value='Get Photo' onclick='getPhoto();'/>";
+	  	          str +="<input type='button' value='Logout' onclick='Logout();'/>";
+	  	          document.getElementById("status").innerHTML=str;
+              }
+            }
+        );
+	    
+    }
+    
+    var allPosts = new Array();
+    
+    
+    function getGroupPostsNext(response) 
+    {
+          var str= "";
+          var anExtractedData = extractData(response);
+          if(anExtractedData != "")
+          {
+            str += anExtractedData;
+            
+            console.log(response.paging.next);
+            if(response.paging.next) 
+            {
+                FB.api(response.paging.next, function(response) {
+                  anExtractedData = getGroupPostsNext(response);
+                  str += anExtractedData;
+                });
+            }
+          }
+          else
+          {
+              console.log("All the posts downloaded");
+              document.getElementById("final_status").innerHTML += "All the posts downloaded";
+              printPosts();
+          }
+          return str;
+    }
+    
+    function extractData(response)
+    {
+        var str = "";
+        
+        for (var l = response.data.length, i = 0; i < l; i++)
+        {
+            var obj = response.data[i];
+            var date = new Date(( obj.created_time || "").replace(/-/g,"/").replace(/[TZ]/g," "));
+            if(date.getFullYear() == 2015)
+            {
+                str += " Id :" + obj.id + " created_time : " + obj.created_time + " from : " + obj.from.name + "<br/>";  
+            }            
+             
+            allPosts.push(obj);
+        }
+        return str;
+    }
+    
+    function printPosts()
+    {
+        console.log("The list of posts :");
+        console.log(allPosts);
+        console.log(allPosts.length);
+    }
+    
+    function getGroupPosts() {
+        
+        FB.api(
+            //"/436219139812698/feed?fields=id,status_type,name,created_time,from,message",
+            "/436219139812698/feed",
+            function (response) {
+              if (response && !response.error) {
+                  
+                  var str= "Posts :";
+                  str += getGroupPostsNext(response);
+                  document.getElementById("status").innerHTML=str;
+              }
+              else
+              {
+                  console.log("Error in FB query");
+              }
+            }
+        );
+	    
+    }
+    
+	
+    function Logout()
+    {
+		FB.logout(function(){document.location.reload();});
+    }
+
+  	// Load the SDK asynchronously
+  	(function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src="https://connect.facebook.net/en_US/all.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+    
+</script>
+<div align="center">
+<h2>Facebook OAuth Javascript Demo</h2>
+
+<div id="status">
+ Click on Below Image to start downloading movie data <br/>
+<img src="LoginWithFacebook.png" style="cursor:pointer;" onclick="Login()"/>
+</div>
+<br/><br/><br/><br/><br/>
+<div id="message">
+Logs:<br/>
+</div>
+
+<div id="final_status">
+</div>
+
+</div>   
+
+<a id='tfa_src_data'><img src = "fb_export.gif" style="cursor:pointer;"/> </a>
+<script>
+    
+    document.getElementById('tfa_src_data').onclick = function() {                  
+                        var csv = JSON.stringify(allPosts);
+                        var csvData = 'data:application/csv;charset=utf-8,' 
+                                       + encodeURIComponent(csv);
+                        this.href = csvData;
+                        this.target = '_blank';
+                        this.download = 'moviedata.txt';
+                    };
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+[MovieConfig]
+Database : movies
+DBUser: root
+DBPass: 
+
+
+[FB]
+AppURL: https://07b0f6efcb50c8cb87eec6c274e234492ef58f94.googledrive.com/host/0B9nqaXjwBKMnNFJvQl84a2tUMGc/index.html
+User: unnikrishnan.r@gmail.com
+Pass: 5jEEOzlSZd5zvusREQr4giviybr9TnfM3FpmJpMnchg=
+Key: 7xkVpjUvEHsjEcS0Irrxoa2NkeyKfuq
+Salt: $2a$12$NQLS2R3QdTRYjVbInDbawe
+

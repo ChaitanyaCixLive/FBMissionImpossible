@@ -1,0 +1,137 @@
+import json
+from pprint import pprint
+import mysql.connector
+import time
+
+
+class MovieDataProcessor:
+
+	def __init__(self, aDataFileName_in):
+		self.myDB = mysql.connector.connect(user='root', password='', host='127.0.0.1', database='movies',  use_unicode=True, charset='utf8')
+		self.myDataFileName = aDataFileName_in
+
+	def __del__(self):
+		self.myDB.close()
+
+	def RetrieveId(aTableName_in, anObj_in):
+
+		cursor = self.myDB.cursor()
+
+		query = u"SELECT id FROM " + aTableName_in + " where fb_id = %s"
+		cursor.execute(query, (anObj_in["id"],))
+
+		anId = -1
+		aResultRecords = cursor.fetchone()
+		if aResultRecords is not None:
+			anId = aResultRecords[0]
+
+		return anId
+
+	def InsertPerson(aPerson_in):
+
+		anId = RetrieveId('person', aPerson_in)
+
+	
+		if anId == -1:
+			print("Inserting person")
+			cursor = self.myDB.cursor()
+			cursor.execute(u"INSERT INTO person(name, fb_id) VALUES(%s, %s)", (aPerson_in["name"], aPerson_in["id"],))
+			self.myDB.commit()
+			anId = cursor.lastrowid
+
+		print(("anId = %d") % anId)
+		return anId
+
+	def GetSQLDateTime(anObj_in):
+
+		aPostTime = time.strptime(anObj_in["created_time"][:18], "%Y-%m-%dT%H:%M:%S")	#2015-01-06T17:07:27+0000
+		anSQLDateTime = time.strftime('%Y-%m-%d %H:%M:%S', aPostTime)
+		return anSQLDateTime
+
+	def InsertPost(aPost_in, anAuthorId_in):
+
+		anId = RetrieveId('post', aPost_in)
+	
+		if anId == -1:
+			print("Inserting post")
+			cursor = self.myDB.cursor()
+		
+			cursor.execute(u"INSERT INTO post(fb_id, author_id, message, date_time, type) VALUES(%s, %s, %s, %s, %s)", (aPost_in["id"], anAuthorId_in, aPost_in.get("message", ""), GetSQLDateTime(aPost_in), aPost_in["type"],))
+			self.myDB.commit()
+			anId = cursor.lastrowid
+
+		print(("anId = %d") % anId)
+		return anId
+
+
+	def RetrieveLikeId(aPostId_in, aPersonId_in):
+
+		cursor = self.myDB.cursor()
+
+		query = u"SELECT id FROM fb_like where post_id = %s and person_id = %s"
+		cursor.execute(query, (aPostId_in, aPersonId_in,))
+
+		anId = -1
+		aResultRecords = cursor.fetchone()
+		if aResultRecords is not None:
+			anId = aResultRecords[0]
+
+		return anId
+
+	def InsertLikes(aPost_in, aPostId_in):
+
+		if "likes" in aPost_in:
+			for aLikePerson in aPost_in["likes"]["data"]:
+				aPersonId = InsertPerson(aLikePerson)
+				aLikeId = RetrieveLikeId(aPostId_in, aPersonId)
+				if aLikeId == -1:
+
+					print("Inserting like")
+					cursor = self.myDB.cursor()
+		
+					cursor.execute(u"INSERT INTO fb_like(post_id, person_id) VALUES(%s, %s)", (aPostId_in, aPersonId,))
+					self.myDB.commit()
+					anId = cursor.lastrowid
+
+	def InsertComments(aPost_in, aPostId_in):
+
+		if "comments" in aPost_in:
+			for aComment in aPost_in["comments"]["data"]:
+				aPersonId = InsertPerson(aComment["from"])
+				aCommentId = RetrieveId('comment', aComment)
+				if aCommentId == -1:
+
+					print("Inserting comment")
+					cursor = self.myDB.cursor()
+		
+					cursor.execute(u"INSERT INTO comment(fb_id, post_id, person_id, date_time, message, like_count) VALUES(%s, %s, %s, %s, %s, %s)", (aComment["id"], aPostId_in, aPersonId, GetSQLDateTime(aComment), aComment["message"], aComment.get("like_count", 0)))
+					self.myDB.commit()
+					anId = cursor.lastrowid
+	
+	def HandleUser(aPost_in):
+
+		pprint(aPost_in["from"])
+		aPersonId = InsertPerson(aPost_in["from"])
+		aPostId = InsertPost(aPost_in, aPersonId)
+		InsertLikes(aPost_in, aPostId)
+		InsertComments(aPost_in, aPostId)
+	
+		
+	
+	
+	def ProcessPostsFile():
+
+		with open(self.myDataFileName) as data_file:    
+	    		aMovieJson = json.load(data_file)
+
+		#HandleUser(aMovieJson[1])
+		for aPost in aMovieJson:
+			HandleUser(aPost)
+
+
+
+	#QueryDB()
+
+	#ProcessPostsFile('moviedata.txt')
+
+	
