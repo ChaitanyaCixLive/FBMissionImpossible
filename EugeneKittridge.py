@@ -4,7 +4,7 @@ import time
 import logging
 import ConfigParser
 
-class MovieDataProcessor:
+class EugeneKittridge:
 
 	def __init__(self, aDataFileName_in):
 		self.logger = logging.getLogger("MovieDataLog")
@@ -139,7 +139,7 @@ class MovieDataProcessor:
 		
 	
 	
-	def Process(self):
+	def Consume(self):
 
 		with open(self.myDataFileName) as data_file:    
 	    		aMovieJson = json.load(data_file)

@@ -14,8 +14,33 @@ from Crypto.Cipher import AES
 from Crypto.Hash import SHA256, HMAC
 import bcrypt
 
+class ToolBox:
 
-class MovieDataImporter:
+	@staticmethod
+	def TeenageBoyWaitFor(isGirlComing, timeOut, peepInterval = 5):
+
+		aTotalWaitTime = 0
+		girlCame = True
+
+		while not isGirlComing():
+			time.sleep( peepInterval )
+			aTotalWaitTime = aTotalWaitTime + peepInterval
+			if aTotalWaitTime > timeOut:
+				girlCame = False
+				break
+
+		return girlCame
+
+	@staticmethod
+	def SilentSniperRemove(filename):
+		try:
+			os.remove(filename)
+	    	except OSError as e: # this would be "except OSError, e:" before Python 2.6
+			if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+		    		raise # re-raise exception if a different error occured
+
+
+class EthanHunt:
 
 	def __init__(self):
 
@@ -35,60 +60,46 @@ class MovieDataImporter:
 	def __del__(self):
 		self.myDriver.quit()
 
+	
 
-	def WaitForDataCollectionFinished(self):
+	def WaitForDataToForm(self):
 
 		aDataStatusElement = self.myDriver.find_element_by_id("final_status")
 		time.sleep( 2 )
-		
-	    	aTotalWaitTime = 0
-		while aDataStatusElement.text != "All the posts downloaded":
-			time.sleep( 5 )
-			aTotalWaitTime = aTotalWaitTime + 5
-			if aTotalWaitTime > 60:
-				break
 
-		if aDataStatusElement.text == "All the posts downloaded":
+		if ToolBox.TeenageBoyWaitFor(lambda : aDataStatusElement.text == "All the posts downloaded", 60) == True:
 			self.logger.info( "Data collection finished")
+		else:
+			self.logger.error( "Failed to collect the data")
+			raise Exception("Failed to collect the data") 
+	    	
 
-	def SilentRemove(self, filename):
-		try:
-			os.remove(filename)
-	    	except OSError as e: # this would be "except OSError, e:" before Python 2.6
-			if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-		    		raise # re-raise exception if a different error occured
-
-	def DownLoadFile(self):
+	
+	def BringItToLocalSystem(self):
 
 		aSrcFileName = "./data/moviedata.txt"
-		self.SilentRemove(aSrcFileName)
+		ToolBox.SilentSniperRemove(aSrcFileName)
 
 		anImportLinkElement = ui.WebDriverWait(self.myDriver, 10).until(EC.presence_of_element_located((By.ID, "tfa_src_data")))
 		time.sleep( 2 )
 	
 		anImportLinkElement.click()
 
-		aTotalWait = 0
-		while not os.path.exists(aSrcFileName):
-			time.sleep( 2 )
-			aTotalWait = aTotalWait + 2
-			if aTotalWait > 60:
-				self.logger.error( "Download wait timed out")
-				break;
-
-		self.logger.info( "File download finished")
-
-		aDestFileName = ""
-		if os.path.exists(aSrcFileName):
-			aDestFileName = "./data/moviedata_" + datetime.datetime.now().strftime("%d%m%Y_%H%M%S") + ".txt"
-			self.logger.info( "The data file is stored at : " + aDestFileName)
-			shutil.move(aSrcFileName, aDestFileName)
+		if ToolBox.TeenageBoyWaitFor(lambda : os.path.exists(aSrcFileName), 60) == True:
+			self.logger.info( "File download finished")
 		else:
-			self.logger.error("The downloaded file [%s] doesn't exist", aSrcFileName)
+			self.logger.error( "Download wait timed out")
+			raise Exception("Download wait timed out") 
 
+		
+		aDestFileName = "./data/moviedata_" + datetime.datetime.now().strftime("%d%m%Y_%H%M%S") + ".txt"
+		self.logger.info( "The data file is stored at : " + aDestFileName)
+		shutil.move(aSrcFileName, aDestFileName)
+		
 		return aDestFileName
 
-	def GetPass(self):
+	def OpenEyesAndShowRetina(self):
+
 		salt = self.myConfig.get("FB", "Salt")
 		key = self.myConfig.get("FB", "Key")
 		hashed = bcrypt.hashpw(key, salt)
@@ -104,7 +115,7 @@ class MovieDataImporter:
 		
 		return DecodeAES(cipher, self.myConfig.get("FB", "Pass"))
 
-	def Login(self):
+	def PerformRetinaScanAndTriggerSteal(self):
 
 		aGetDataElement = ui.WebDriverWait(self.myDriver, 10).until(EC.presence_of_element_located((By.ID, "login_button")))
 
@@ -123,7 +134,7 @@ class MovieDataImporter:
 		aLoginButtonElement = ui.WebDriverWait(self.myDriver, 10).until(EC.presence_of_element_located((By.ID, "u_0_1")))
 		anEmailElement.send_keys(self.myConfig.get("FB", "User"))
 		time.sleep( 2 )
-		aPasswordElement.send_keys(self.GetPass())
+		aPasswordElement.send_keys(self.OpenEyesAndShowRetina())
 		time.sleep( 2 )
 		self.logger.info('Login data is entered')
 
@@ -133,22 +144,23 @@ class MovieDataImporter:
 
 		self.myDriver.switch_to_window(self.myDriver.window_handles[-1])
 
-	def Import(self):
+	def StealFBData(self):
 
 		aPostsFile = ""
 		try:
-			self.Login()
+			self.PerformRetinaScanAndTriggerSteal()
 
-			self.WaitForDataCollectionFinished()
+			self.logger.info('Logged in. Waiting for the data to be stolen...')
 
-			self.logger.info('Page has collected the data. Importing it now...')
+			self.WaitForDataToForm()
+
+			self.logger.info('Page has stolen the data. Importing it now...')
 			
-			aPostsFile = self.DownLoadFile()
-
-			self.logger.info('Data is imported')
+			aPostsFile = self.BringItToLocalSystem()
+		
 	
 		finally:
-			self.logger.info("Download finished")
+			self.logger.info('Data is now in local disk')
 			return aPostsFile
 
 

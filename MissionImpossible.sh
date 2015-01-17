@@ -7,4 +7,4 @@ echo "Updating movie list"
 
 cd "/home/unni/Desktop/MovieForum"
 
-python Main.py
+python MissionImpossible.py
