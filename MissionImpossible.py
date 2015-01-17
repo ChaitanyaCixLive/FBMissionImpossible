@@ -2,18 +2,19 @@ import logging
 from logging.handlers import RotatingFileHandler
 import datetime
 
-import MovieDataProcessor
-import MovieDataImporter
+import EugeneKittridge
+import EthanHunt
+
 
 class MissionImpossible:
 	def __init__(self):
-		logger = logging.getLogger("MovieDataLog")
+		logger = logging.getLogger("MissionImpossibleLog")
 		logger.setLevel(logging.INFO)
 
 		formatter = logging.Formatter("%(asctime)s -11s %(levelname)-10s %(message)s")
 	
 		# Log to file
-		filehandler = RotatingFileHandler("./log/MovieDataImport.log", maxBytes=1000000, backupCount=5)
+		filehandler = RotatingFileHandler("./log/MissionImpossibleLog.log", maxBytes=1000000, backupCount=5)
 		filehandler.setLevel(logging.INFO)
 		filehandler.setFormatter(formatter)
 		logger.addHandler(filehandler)
@@ -26,11 +27,13 @@ class MissionImpossible:
 
 	
 	def Execute(self):
-		logger = logging.getLogger("MovieDataLog")
+		logger = logging.getLogger("MissionImpossibleLog")
 
 		logger.info('Ehtan Hunt is stealing data from Facebook...[%s]', datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S"))
 
-		theEthanHunt = MovieDataImporter.EthanHunt()
+		
+
+		theEthanHunt = EthanHunt.EthanHunt()
 		aStolenFBData = theEthanHunt.StealFBData()
 
 		if aStolenFBData is not "":
@@ -41,8 +44,8 @@ class MissionImpossible:
 
 		logger.info('Eugene Kittridge is processing the data...')
 
-		theEugeneKittridge = MovieDataProcessor.EugeneKittridge(aStolenFBData)
-		#theEugeneKittridge = MovieDataProcessor.EugeneKittridge("/home/unni/Desktop/MovieForum/data/moviedata_10012015_083814.txt")
+		theEugeneKittridge = EugeneKittridge.EugeneKittridge(aStolenFBData)
+		#theEugeneKittridge = EugeneKittridge.EugeneKittridge("/home/unni/Desktop/MovieForum/data/moviedata_10012015_083814.txt")
 		theEugeneKittridge.Consume()
 
 		logger.info('Successfully processed the data')
