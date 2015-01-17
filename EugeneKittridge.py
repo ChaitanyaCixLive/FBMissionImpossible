@@ -2,16 +2,16 @@ import json
 import mysql.connector
 import time
 import logging
-import ConfigParser
+import LutherStickell
 
 class EugeneKittridge:
 
 	def __init__(self, aDataFileName_in):
-		self.logger = logging.getLogger("MovieDataLog")
-		self.myConfig = ConfigParser.ConfigParser()
-		self.myConfig.read("./MovieConfig.ini")
+		self.logger = logging.getLogger("MissionImpossibleLog")
+		theSupplier = LutherStickell.LutherStickell()
+		
 
-		self.myDB = mysql.connector.connect(user=self.myConfig.get("MovieConfig", "DBUser"), password=self.myConfig.get("MovieConfig", "DBPass"), host='127.0.0.1', database=self.myConfig.get("MovieConfig", "Database"),  use_unicode=True, charset='utf8')
+		self.myDB = mysql.connector.connect(user=theSupplier.GetMeDBUserName(), password=theSupplier.GetMeDBUserPassword(), host='127.0.0.1', database=theSupplier.GetMeDBName(),  use_unicode=True, charset='utf8')
 		self.myDataFileName = aDataFileName_in
 		
 
