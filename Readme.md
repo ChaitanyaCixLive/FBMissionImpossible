@@ -1,7 +1,7 @@
 Welcome to Mission Impossible.
 -----------------------------
 
-This project aims to mine the sacred data hidden inside the secret walls of Facebook under the group named "മികച്ച അന്താരാഷ്‌ട്ര സിനിമകൾ" which is based on an exotic language spoken in the backwaters of a tiny warm tropical region called Kerala. Ethan set up a team with his old pals Franz and Luther to steal the data. He could login with the secret data supplied by Luther which is stored in an ultra secure ini file. Franz supplies the necessary tools and transportation which is based on Selenium automation driver for python. Ethan navigates the Facebook facility with a html/javascript component which works with the Facebook graph API.
+This project aims to mine the sacred data hidden inside the secret walls of Facebook under the group named "മികച്ച അന്താരാഷ്‌ട്ര സിനിമകൾ" which is based on an exotic language named Malayalam spoken in the backwaters of a tiny warm tropical region called Kerala. Ethan set up a team with his old pals Franz and Luther to steal the data. He could login with the secret data supplied by Luther which is stored in an ultra secure ini file. Franz supplies the necessary tools and transportation which is based on Selenium automation driver for python. Ethan navigates the Facebook facility with a html/javascript component which works with the Facebook graph API.
 
 The stolen data will then be passed over to Eugene and he will tear open the json file, will pick up the posts, comments and likes and will insert them to his secrete mysql server based movie database. Unfortunately the posts themselves don't contain any information which indicates which movie they are describing. This is a job later should be done by those who sets up the Mission manually.
 
@@ -10,14 +10,14 @@ The stolen data will then be passed over to Eugene and he will tear open the jso
 To Set up the Mission yourself
 ------------------------------
 
-1. Preconditions:
+=> Preconditions:
 
 - Ubuntu or compatible linux is set up
 - Mysql server is installed
 - Preferrably mysql workbench installed. It might be handy
 - The necessary python packages are installed. Some packages will need additional ubuntu packages, such as gcc to be present. So install them also.
 
-2. Steps to install:
+=> Steps to install:
 
 - Download the files to a local folder. 
 - Create a two more sub-folders in this folder named 'data' and 'log'. 
@@ -32,7 +32,7 @@ To Set up the Mission yourself
 - The password is bit tricky. Generate the encrypted password with the tool GenerateEncryptedPassword.py and keep this in the ini file. 
 	However, remember that this is a very weak security mechanism and this should be used only to prevent any over the shoulder attacks.
 
-3. Working with the set-up:
+=> Working with the set-up:
 
 Now you should be able to run the MissionImpossible.sh successfully. If everything is OK, it will download the datafile after connecting to facebook and import the data to the database.
 Check the movie database in mysql workbench for the data.
