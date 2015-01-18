@@ -21,7 +21,7 @@ class MovieEditor(wx.Frame):
 		self.InitializeLogger()
 
 		self.myConfig = ConfigParser.ConfigParser()
-		self.myConfig.read("./MovieConfig.ini")
+		self.myConfig.read("./LutherStickell.ini")
 		self.myDB = mysql.connector.connect(user=self.myConfig.get("MovieConfig", "DBUser"), password=self.myConfig.get("MovieConfig", "DBPass"), host='127.0.0.1', database=self.myConfig.get("MovieConfig", "Database"),  use_unicode=True, charset='utf8')
 	
 		    
